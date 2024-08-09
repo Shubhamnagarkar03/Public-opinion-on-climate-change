@@ -1,0 +1,60 @@
+Climate Change is a serious issue. Here, I have gathered this dataset from Kaggle by "ASANICZKA". 
+We will assign a sentiment value to the text and then pair it with real time climate issues. 
+We will also classify the text based on Political and Environmental stance of the public.
+This will help us understand who the public really blames for the issue.
+
+-Python-
+
+import pandas as pd
+
+# Load your dataset
+# Replace 'your_dataset.csv' with the path to your dataset file
+your_dataset = pd.read_csv('/content/reddit_opinion_climate_change.csv')
+
+# Display the first few rows of the dataset to understand its structure
+print(your_dataset.head())
+
+import nltk
+from textblob import TextBlob
+
+# Download NLTK resources
+nltk.download('punkt')
+nltk.download('averaged_perceptron_tagger')
+
+def get_sentiment(self_text):
+    """
+    Function to determine sentiment of the text
+    Returns: 'positive', 'negative', or 'neutral'
+    """
+    analysis = TextBlob(self_text)
+    if analysis.sentiment.polarity > 0:
+        return 'positive'
+    elif analysis.sentiment.polarity < 0:
+        return 'negative'
+    else:
+        return 'neutral'
+
+def get_blaming_style(self_text):
+    """
+    Function to classify the style of text as either political blaming or environmental blaming
+    Returns: 'political blaming', 'environmental blaming', or 'other'
+    """
+    political_words = ['government', 'politician', 'policy', 'administration', 'law', 'regulation', 'affairs', 'trump', 'greta']
+    environmental_words = ['climate', 'environment', 'carbon', 'emission', 'greenhouse', 'planet', 'warming']
+
+    text = self_text.lower()
+
+    political_count = sum(text.count(word) for word in political_words)
+    environmental_count = sum(text.count(word) for word in environmental_words)
+
+    if political_count > environmental_count:
+        return 'political blaming'
+    elif environmental_count > political_count:
+        return 'environmental blaming'
+    else:
+        return 'other'
+your_dataset['self_text'] = your_dataset['self_text'].astype(str)
+your_dataset['sentiment'] = your_dataset['self_text'].apply(get_sentiment)
+your_dataset['blaming_style'] = your_dataset['self_text'].apply(get_blaming_style)
+
+your_dataset.to_csv('updated_climate_change.csv', index=False)
